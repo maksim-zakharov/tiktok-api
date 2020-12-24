@@ -55,14 +55,18 @@ export class TiktokService {
 
     let tagId = Object.entries(this._dictionary).find(([key, value]) => key === tagName)?.slice(1);
     if (!tagId) {
-      const _browser = await createBrowser();
+      // const _browser = await createBrowser();
+      //
+      // const page = await createPage(_browser);
+      //
+      // await tryNavigate(page, `https://www.tiktok.com/tag/${tagName}?lang=ru-RU`);
+      //
+      // const content = await page.content();
+      // const $ = cheerio.load(content);
+      console.log(tagName)
+      const response = await axios.get(`https://www.tiktok.com/tag/${encodeURIComponent(tagName)}?lang=ru-RU`);
+      const $ = cheerio.load(response.data);
 
-      const page = await createPage(_browser);
-
-      await tryNavigate(page, `https://www.tiktok.com/tag/${tagName}?lang=ru-RU`);
-
-      const content = await page.content();
-      const $ = cheerio.load(content);
       tagId = $('meta[property="al:ios:url"]').first().attr('content').split('?')[0].split('/')[4] as any;
       this._dictionary[tagName] = tagId;
     }

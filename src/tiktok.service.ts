@@ -67,7 +67,7 @@ export class TiktokService {
       const response = await axios.get(`https://www.tiktok.com/tag/${encodeURIComponent(tagName)}?lang=ru-RU`);
       const $ = cheerio.load(response.data);
 
-      tagId = $('meta[property="al:ios:url"]').first().attr('content').split('?')[0].split('/')[4] as any;
+      tagId = $('meta[property="al:ios:url"]').first().attr('content')?.split('?')[0]?.split('/')[4] as any;
       this._dictionary[tagName] = tagId;
     }
 

@@ -75,6 +75,7 @@ export const tryNavigate = async (page: Page, pageUrl: string, isDynamic: boolea
 export const createBrowser = (isDebug?: boolean): Promise<Browser> => {
     return puppeteer.launch({
         headless: !isDebug, //options.isDebug != 'true',
+        executablePath: process.env.CHROMIUM_PATH,
         args: [
             '--no-sandbox',
             '--disable-setuid-sandbox',

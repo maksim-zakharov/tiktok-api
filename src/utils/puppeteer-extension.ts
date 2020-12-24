@@ -1,7 +1,7 @@
 import {Browser, Page} from "puppeteer";
 import * as puppeteer from "puppeteer";
-import {default as axios} from 'axios';
-import * as cheerio from 'cheerio';
+// import {default as axios} from 'axios';
+// import * as cheerio from 'cheerio';
 
 /**
  * Набор текста в предварительно очищенную строку

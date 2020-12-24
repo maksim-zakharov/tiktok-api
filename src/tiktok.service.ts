@@ -5,9 +5,9 @@ import axios from 'axios';
 import { Tiktok } from "./tiktok.models";
 import CollectionResponse = Tiktok.CollectionResponse;
 import ChallengeItem = Tiktok.ChallengeItem;
-import { createBrowser, createPage, tryNavigate } from "../utils/puppeteer-extension";
+import { createBrowser, createPage, tryNavigate } from "./utils/puppeteer-extension";
 
-const cheerio = require('cheerio');
+import * as cheerio from 'cheerio';
 
 export class TiktokService {
 
@@ -15,6 +15,34 @@ export class TiktokService {
 
   constructor() {
     dotenv.config()
+  }
+
+  async getRecommendedTagsByTag(tagName: string, top = 20) {
+
+    const items: ChallengeItem[] = [];
+
+    for (let i = 0; i < 100; i++) {
+      const { itemList } = await this.getChallengesByTag(tagName, i * 35, 35);
+      if (!itemList) {
+        break;
+      }
+      items.push(...itemList);
+    }
+
+    const allChallenges: any = selectMany<ChallengeItem>(items, item => item.challenges);
+
+    const topChallenges = countBy(allChallenges, i => i.title).sort(function(a, b) {
+      if (a[1] > b[1]) {
+        return -1;
+      }
+      if (a[1] < b[1]) {
+        return 1;
+      }
+      // a должно быть равным b
+      return 0;
+    }).splice(0, top);
+
+    return topChallenges;
   }
 
   async getChallengesByTag(tagName: string, offset = 0, count = 30)
@@ -34,8 +62,8 @@ export class TiktokService {
       await tryNavigate(page, `https://www.tiktok.com/tag/${tagName}?lang=ru-RU`);
 
       const content = await page.content();
-      let $ = cheerio.load(content);
-      tagId = $('meta[property="al:ios:url"]').first().attr('content').replace().split('?')[0].split('/')[4];
+      const $ = cheerio.load(content);
+      tagId = $('meta[property="al:ios:url"]').first().attr('content').split('?')[0].split('/')[4] as any;
       this._dictionary[tagName] = tagId;
     }
 
@@ -62,9 +90,37 @@ export class TiktokService {
     await tryNavigate(page, url);
 
     const content = await page.content();
-    let $ = cheerio.load(content);
+    const $ = cheerio.load(content);
     return $('body').text();
   }
 }
+
+const countBy = <T = any>(arr: T[], predicate?: (value: T) => unknown) => {
+  return Object.entries(arr.reduce((acc, val) => {
+    const value = predicate(val);
+    acc[value.toString()] = (acc[value.toString()] || 0) + 1;
+    return acc;
+  }, {} as any));
+};
+
+const selectMany = <T>(items, predicate?: (value: T) => unknown): T => {
+  return items.map(predicate).reduce((arr, curr) => arr.concat(curr), []);
+};
+
+const distinct = <T>(items, selector?: (x: T) => unknown): Array<T> => {
+  if (!selector) {
+    return Array.from<T>(new Set(items));
+  }
+  const result = [];
+  const resultIndex = [];
+  const selectedItems = items.map(selector);
+  selectedItems.forEach((el, index) => {
+    if (!resultIndex.includes(el)) {
+      resultIndex.push(el);
+      result.push(items[index]);
+    }
+  });
+  return result;
+};
 
 

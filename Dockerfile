@@ -8,8 +8,8 @@ RUN npm install
 
 COPY . .
 
-# Сбилдим бек и фронт
-RUN npm run build:ssr
+# Сбилдим бек
+RUN npm run build
 
 FROM node:alpine as production
 
@@ -24,10 +24,9 @@ RUN npm install --only=production
 
 COPY . .
 
-COPY ./nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=development /usr/src/app/dist ./dist
 
 EXPOSE $PORT
 
 
-CMD ["node", "dist/server"]
+CMD ["node", "dist/main"]

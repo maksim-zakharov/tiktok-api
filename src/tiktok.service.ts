@@ -1,11 +1,11 @@
-import '../utils/puppeteer-extension';
+import '@utils/puppeteer-extension';
 
 import * as dotenv from 'dotenv';
 import axios from 'axios';
 import { Tiktok } from "./tiktok.models";
 import CollectionResponse = Tiktok.CollectionResponse;
 import ChallengeItem = Tiktok.ChallengeItem;
-import { createBrowser, createPage, tryNavigate } from "./utils/puppeteer-extension";
+import { createBrowser, createPage, tryNavigate } from "@utils/puppeteer-extension";
 
 import * as cheerio from 'cheerio';
 

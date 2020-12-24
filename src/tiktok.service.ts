@@ -55,17 +55,17 @@ export class TiktokService {
 
     let tagId = Object.entries(this._dictionary).find(([key, value]) => key === tagName)?.slice(1);
     if (!tagId) {
-      // const _browser = await createBrowser();
-      //
-      // const page = await createPage(_browser);
-      //
-      // await tryNavigate(page, `https://www.tiktok.com/tag/${tagName}?lang=ru-RU`);
-      //
-      // const content = await page.content();
-      // const $ = cheerio.load(content);
-      console.log(tagName)
-      const response = await axios.get(`https://www.tiktok.com/tag/${encodeURIComponent(tagName)}?lang=ru-RU`);
-      const $ = cheerio.load(response.data);
+      const _browser = await createBrowser();
+
+      const page = await createPage(_browser);
+
+      await tryNavigate(page, `https://www.tiktok.com/tag/${tagName}?lang=ru-RU`);
+
+      const content = await page.content();
+      const $ = cheerio.load(content);
+      // console.log(tagName)
+      // const response = await axios.get(`https://www.tiktok.com/tag/${encodeURIComponent(tagName)}?lang=ru-RU`);
+      // const $ = cheerio.load(response.data);
 
       tagId = $('meta[property="al:ios:url"]').first().attr('content')?.split('?')[0]?.split('/')[4] as any;
       this._dictionary[tagName] = tagId;
@@ -75,14 +75,11 @@ export class TiktokService {
       .then(async (response) => {
         if (response.data.type) {
           response.data = await this.getByPuppeteer(`https://m.tiktok.com/api/challenge/item_list/?aid=1988&challengeID=70578828&count=${count}&cursor=${offset}`);
-          console.log(JSON.stringify(response.headers))
-          console.log(JSON.stringify(response.data))
           return response.data;
         } else {
           return response.data;
         }
       })
-    // .then(console.log)
   }
 
   getByPuppeteer = async (url) => {
